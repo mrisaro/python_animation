@@ -1,4 +1,4 @@
-# import libraries
+# Librerías a utilizar
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from scipy.integrate import ode
 from matplotlib import animation
 
-# Function definitions
+# Definición de ecuaciones de movimiento
 def newton(t, Y, q, m, B):
     """Computes the derivative of the state vector y according to the equation of motion:
     Y is the state vector (x, y, z, u, v, w) === (position, velocity).
@@ -18,13 +18,13 @@ def newton(t, Y, q, m, B):
     alpha = q / m * B
     return np.array([u, v, w, 0, alpha * w, -alpha * v])
 
-# Method initialization
+# Inicializamos el método de integración
 r = ode(newton).set_integrator('dopri5')
 
-# Initial conditions
+# Condiciones iniciales
 t0 = 0
 x0 = np.array([0, 0, 0])
-v0 = np.array([1, 1, 0])
+v0 = np.array([1, 1, 1])
 initial_conditions = np.concatenate((x0, v0))
 
 # Resolving the equations
@@ -35,28 +35,26 @@ t1 = 50
 dt = 0.05
 while r.successful() and r.t < t1:
     r.integrate(r.t+dt)
-    positions.append(r.y[:3]) # keeping only position, not velocity
+    positions.append(r.y[:3])       # Guardo solo posiciones, no velocidad
 
-positions = np.array(positions)
+positions = np.array(positions)     # Paso a array
 
-fig = plt.figure()
+
+# Procedo a graficar las trayectorias y hacer la animación
+# La idea es que grafico la primera y voy actualizando las posiciones para
+# crear los "cuadros" de la animación.
+
+fig = plt.figure(1,figsize=(10,6))
 ax = fig.add_subplot(111, projection='3d')
 ax.plot3D(positions[:, 0], positions[:, 1], positions[:, 2])
-
-B1 = np.array([x0[0], x0[1], -1])
-B2 = np.array([60, 0, 0])
-B_axis = np.vstack((B1, B1 + B2))
-ax.plot3D(B_axis[:, 0],
-         B_axis[:, 1],
-         B_axis[:, 2])
+ax.set_xlim(-1,50)
 plt.xlabel('x')
 plt.ylabel('y')
 ax.set_zlabel('z')
-ax.text3D((B1 + B2)[0], (B1 + B2)[1], (B1 + B2)[2], "B field")
 
 # Animation 1
 FRAMES = 50
-fig = plt.figure()
+fig = plt.figure(1,figsize=(10,6))
 ax = fig.add_subplot(111, projection='3d')
 
 def init():
